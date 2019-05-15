@@ -2,103 +2,33 @@ using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using System;
 
-namespace ToDoList.Models
+namespace Library.Models
 {
-  public class Item
+  public class Book
   {
-    private string _description;
-    private int _id;
-    private DateTime _dueDate;
-    private bool _isComplete;
+    public string Title {get; set;}
+    public int Id {get; set;}
 
-    // public Item (string description, DateTime dueDate, int categoryId)
+    public Book (string title, int id = 0)
+    {
+      Title = title;
+      Id = id;
+    }
+    // _isComplete = isComplete;
+    // public void CompletedBook()
     // {
-    //   _description = description;
-    //   _dueDate = dueDate;
-    //   _categoryId = categoryId;
+    //   _isComplete = !(this.GetIsComplete());
     // }
-    public Item (string description, DateTime dueDate, bool isComplete = false, int id = 0)
-    {
-      _description = description;
-      _dueDate = dueDate;
-      _isComplete = isComplete;
-      _id = id;
-    }
 
-    public DateTime GetDueDate()
-    {
-      return _dueDate;
-    }
-
-    public void SetDueDate(DateTime dueDate)
-    {
-      _dueDate = dueDate;
-    }
-
-    public string GetDescription()
-    {
-      return _description;
-    }
-
-    public void SetDescription(string newDescription)
-    {
-      _description = newDescription;
-    }
-
-    public int GetId()
-    {
-      return _id;
-    }
-
-    public bool GetIsComplete()
-    {
-      return _isComplete;
-    }
-
-    public void SetIsComplete(bool isComplete)
-    {
-      _isComplete = isComplete;
-    }
-
-    public override bool Equals(System.Object otherItem)
-    {
-      if (!(otherItem is Item))
-      {
-        return false;
-      }
-      else
-      {
-        Item newItem = (Item) otherItem;
-        bool idEquality = (this.GetId() == newItem.GetId());
-        bool descriptionEquality = (this.GetDescription() == newItem.GetDescription());
-        // bool dueDateEquality = (this.GetDueDate() == newItem.GetDueDate());
-        bool isCompleteEquality = (this.GetIsComplete() == newItem.GetIsComplete());
-        // Console.WriteLine("id:"+idEquality+"desc"+descriptionEquality+"due"+dueDateEquality+"isComplete"+isCompleteEquality);
-        return (idEquality && descriptionEquality && isCompleteEquality);
-      }
-    }
-
-    public void CompletedItem()
-    {
-      _isComplete = !(this.GetIsComplete());
-    }
-
-    public void Edit(string newDescription)
+    public void Edit(string newTitle)
     {
       MySqlConnection conn = DB.Connection();
       conn.Open();
-      var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"UPDATE item SET description = @newDescription WHERE id = @searchId;";
-      MySqlParameter searchId = new MySqlParameter();
-      searchId.ParameterName = "@searchId";
-      searchId.Value = _id;
-      cmd.Parameters.Add(searchId);
-      MySqlParameter description = new MySqlParameter();
-      description.ParameterName = "@newDescription";
-      description.Value = newDescription;
-      cmd.Parameters.Add(description);
+      MySqlCommand cmd = new MySqlCommand(@"UPDATE books SET title = @newTitle WHERE id = @searchId;", conn);
+      cmd.Parameters.AddWithValue("@searchId", Id);
+      cmd.Parameters.AddWithValue("@newTitle", newTitle);
       cmd.ExecuteNonQuery();
-      _description = newDescription;
+      Title = newTitle;
 
       conn.Close();
       if (conn != null)
@@ -111,18 +41,10 @@ namespace ToDoList.Models
     {
       MySqlConnection conn = DB.Connection();
       conn.Open();
-      var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"INSERT INTO item (description, dueDate) VALUES (@ItemDescription, @ItemDueDate);";
-      MySqlParameter description = new MySqlParameter();
-      description.ParameterName = "@ItemDescription";
-      description.Value = this._description;
-      MySqlParameter dueDate = new MySqlParameter();
-      dueDate.ParameterName = "@ItemDueDate";
-      dueDate.Value = this._dueDate;
-      cmd.Parameters.Add(description);
-      cmd.Parameters.Add(dueDate);
+      MySqlCommand cmd = new MySqlCommand(@"INSERT INTO books (title) VALUES (@BookTitle);", conn);
+      cmd.Parameters.AddWithValue("@BookTitle", this.Title);
       cmd.ExecuteNonQuery();
-      _id = (int) cmd.LastInsertedId;
+      Id = (int) cmd.LastInsertedId;
       conn.Close();
       if (conn != null)
       {
@@ -130,132 +52,97 @@ namespace ToDoList.Models
       }
     }
 
-    public static List<Item> GetAll()
+    public static List<Book> GetAll()
     {
-      List<Item> allItems = new List<Item> {};
+      List<Book> allBooks = new List<Book> {};
       MySqlConnection conn = DB.Connection();
       conn.Open();
-      MySqlCommand cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"SELECT * FROM item;";
+      MySqlCommand cmd = new MySqlCommand(@"SELECT * FROM books;", conn);
       MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
       while(rdr.Read())
       {
-        int itemId = rdr.GetInt32(0);
-        string itemDescription = rdr.GetString(1);
-        DateTime itemDueDate = rdr.GetDateTime(2);
-        bool itemIsComplete = rdr.GetBoolean(3);
-        Item newItem = new Item(itemDescription, itemDueDate, itemIsComplete, itemId);
-        allItems.Add(newItem);
+        int bookId = rdr.GetInt32(0);
+        string bookTitle = rdr.GetString(1);
+        Book newBook = new Book(bookTitle, bookId);
+        allBooks.Add(newBook);
       }
       conn.Close();
       if (conn != null)
       {
         conn.Dispose();
       }
-      return allItems;
+      return allBooks;
     }
 
-    public static void ClearAll()
+
+    public static Book Find(int id)
     {
       MySqlConnection conn = DB.Connection();
       conn.Open();
-      var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"DELETE FROM item;";
-      cmd.ExecuteNonQuery();
-      conn.Close();
-      if (conn != null)
-      {
-       conn.Dispose();
-      }
-    }
-
-    public static Item Find(int id)
-    {
-      MySqlConnection conn = DB.Connection();
-      conn.Open();
-      var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"SELECT * FROM item WHERE id = (@thisId);";
-      MySqlParameter thisId = new MySqlParameter();
-      thisId.ParameterName = "@thisId";
-      thisId.Value = id;
-      cmd.Parameters.Add(thisId);
+      MySqlCommand cmd = new MySqlCommand(@"SELECT * FROM books WHERE id = (@thisId);", conn);
+      cmd.Parameters.AddWithValue("@thisId", id);
       MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
-      int itemId = 0;
-      string itemDescription = "";
-      DateTime itemDueDate = new DateTime(0001, 01, 01);
-      bool itemIsComplete = false;
-      // Item foundItem = new Item(itemDescription, itemDueDate, itemCategoryId, itemId);
-      // DateTime dueDate = 0;
+      int bookId = 0;
+      string bookTitle = "";
       while(rdr.Read())
       {
-        itemId = rdr.GetInt32(0);
-        itemDescription = rdr.GetString(1);
-        itemDueDate = rdr.GetDateTime(2);
-        itemIsComplete = rdr.GetBoolean(3);
+        bookId = rdr.GetInt32(0);
+        bookTitle = rdr.GetString(1);
       }
-      Item foundItem = new Item(itemDescription, itemDueDate, itemIsComplete, itemId);
+      Book foundBook = new Book(bookTitle, bookId);
       conn.Close();
       if (conn != null)
       {
         conn.Dispose();
       }
-      return foundItem;
+      return foundBook;
     }
 
-    public List<Category> GetCategories()
+    public List<Author> GetAuthors()
     {
       MySqlConnection conn = DB.Connection();
       conn.Open();
-      var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"SELECT category_id FROM category_item WHERE item_id = @itemId;";
-      MySqlParameter itemIdParameter = new MySqlParameter();
-      itemIdParameter.ParameterName = "@itemId";
-      itemIdParameter.Value = _id;
-      cmd.Parameters.Add(itemIdParameter);
-      var rdr = cmd.ExecuteReader() as MySqlDataReader;
-      List<int> categoryIds = new List<int> {};
+      MySqlCommand cmd = new MySqlCommand(@"SELECT author_id FROM authors_books WHERE book_id = @bookId;", conn);
+      cmd.Parameters.AddWithValue("@bookId", Id);
+      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
+      List<int> authorIds = new List<int> {};
       while(rdr.Read())
       {
-        int categoryId = rdr.GetInt32(0);
-        categoryIds.Add(categoryId);
+        int authorId = rdr.GetInt32(0);
+        authorIds.Add(authorId);
       }
       rdr.Dispose();
-      List<Category> categories = new List<Category> {};
-      foreach (int categoryId in categoryIds)
+      List<Author> authors = new List<Author> {};
+      foreach (int authorId in authorIds)
       {
-        var categoryQuery = conn.CreateCommand() as MySqlCommand;
-        categoryQuery.CommandText = @"SELECT * FROM category WHERE id = @CategoryId;";
-        MySqlParameter categoryIdParameter = new MySqlParameter();
-        categoryIdParameter.ParameterName = "@CategoryId";
-        categoryIdParameter.Value = categoryId;
-        categoryQuery.Parameters.Add(categoryIdParameter);
-        var categoryQueryRdr = categoryQuery.ExecuteReader() as MySqlDataReader;
-        while(categoryQueryRdr.Read())
+        MySqlCommand command = new MySqlCommand(@"SELECT * FROM authors WHERE id = @AuthorId;", conn);
+        command.Parameters.AddWithValue("@AuthorId", authorId);
+        MySqlDataReader commandRdr = command.ExecuteReader() as MySqlDataReader;
+        while(commandRdr.Read())
         {
-          int thisCategoryId = categoryQueryRdr.GetInt32(0);
-          string categoryName = categoryQueryRdr.GetString(1);
-          Category foundCategory = new Category(categoryName, thisCategoryId);
-          categories.Add(foundCategory);
+          int thisAuthorId = commandRdr.GetInt32(0);
+          string authorName = commandRdr.GetString(1);
+          Author foundAuthor = new Author(authorName, thisAuthorId);
+          authors.Add(foundAuthor);
         }
-        categoryQueryRdr.Dispose();
+        commandRdr.Dispose();
       }
       conn.Close();
       if (conn != null)
       {
         conn.Dispose();
       }
-      return categories;
+      return authors;
     }
 
 
-    public void AddCategory(Category newCategory)
+    public void AddAuthor(Author newAuthor)
     {
       MySqlConnection conn = DB.Connection();
       conn.Open();
-      var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"INSERT INTO category_item (category_id, item_id) VALUES (@CategoryId, @ItemId);";
-      cmd.Parameters.AddWithValue("@CategoryId", newCategory.GetId());
-      cmd.Parameters.AddWithValue("@ItemId", _id);
+      MySqlCommand cmd = new MySqlCommand(@"INSERT INTO authors_books (author_id, book_id) VALUES (@AuthorId, @BookId);", conn);
+      cmd.Parameters.AddWithValue("@AuthorId", newAuthor.Id);
+      cmd.Parameters.AddWithValue("@BookId", Id);
       cmd.ExecuteNonQuery();
       conn.Close();
       if (conn != null)
@@ -268,17 +155,43 @@ namespace ToDoList.Models
     {
       MySqlConnection conn = DB.Connection();
       conn.Open();
-      var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"DELETE FROM item WHERE id = @ItemId; DELETE FROM category_item WHERE item_id = @ItemId;";
-      MySqlParameter itemIdParameter = new MySqlParameter();
-      itemIdParameter.ParameterName = "@ItemId";
-      itemIdParameter.Value = this.GetId();
-      cmd.Parameters.Add(itemIdParameter);
+      MySqlCommand cmd = new MySqlCommand(@"DELETE FROM books WHERE id = @BookId; DELETE FROM authors_books WHERE book_id = @BookId;", conn);
+      cmd.Parameters.AddWithValue("@BookId", this.Id);
       cmd.ExecuteNonQuery();
       if (conn != null)
       {
         conn.Close();
       }
     }
+
+    public static void ClearAll()
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+      MySqlCommand cmd = new MySqlCommand(@"DELETE FROM books;", conn);
+      cmd.ExecuteNonQuery();
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+    }
+
+    public override bool Equals(System.Object otherBook)
+    {
+      if (!(otherBook is Book))
+      {
+        return false;
+      }
+      else
+      {
+        Book newBook = (Book) otherBook;
+        bool idEquality = (this.Id == newBook.Id);
+        bool titleEquality = (this.Title == newBook.Title);
+        // bool isCompleteEquality = (this.GetIsComplete() == newBook.GetIsComplete());
+        return (idEquality && titleEquality);
+      }
+    }
+
   }
 }

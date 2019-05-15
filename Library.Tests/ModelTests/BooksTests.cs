@@ -1,120 +1,76 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ToDoList.Models;
+using Library.Models;
 using System.Collections.Generic;
 using System;
 
-namespace ToDoList.Tests
+namespace Library.Tests
 {
   [TestClass]
-  public class ItemTest : IDisposable
+  public class BookTest : IDisposable
   {
-
     public void Dispose()
     {
-      Item.ClearAll();
+      Book.ClearAll();
     }
 
-    public ItemTest()
+    public BookTest()
     {
-      DBConfiguration.ConnectionString = "server=localhost;user id=root;password=root;port=8889;database=to_do_list_test;";
+      DBConfiguration.ConnectionString = "server=localhost;user id=root;password=root;port=8889;database=library_test;";
     }
 
     [TestMethod]
-    public void ItemConstructor_CreatesInstanceOfItem_Item()
+    public void BookConstructor_CreatesInstanceOfBook_Book()
     {
-      DateTime newDateTime = new DateTime(2001);
-      Item newItem = new Item("test", newDateTime);
-      Assert.AreEqual(typeof(Item), newItem.GetType());
+      Book newBook = new Book("test");
+      Assert.AreEqual(typeof(Book), newBook.GetType());
     }
 
     [TestMethod]
-    public void GetDescription_ReturnsDescription_String()
+    public void GetAll_ReturnsEmptyListFromDatabase_BookList()
     {
       //Arrange
-      string description = "Walk the dog.";
-      DateTime newDateTime = new DateTime(2001);
-      Item newItem = new Item(description, newDateTime);
+      List<Book> newList = new List<Book> { };
 
       //Act
-      string result = newItem.GetDescription();
-
-      //Assert
-      Assert.AreEqual(description, result);
-    }
-
-    [TestMethod]
-    public void SetDescription_SetDescription_String()
-    {
-      //Arrange
-      DateTime newDateTime = new DateTime(2001);
-      string description = "Walk the dog.";
-      Item newItem = new Item(description, newDateTime);
-
-      //Act
-      string updatedDescription = "Do the dishes";
-      newItem.SetDescription(updatedDescription);
-      string result = newItem.GetDescription();
-
-      //Assert
-      Assert.AreEqual(updatedDescription, result);
-    }
-
-    [TestMethod]
-    public void GetAll_ReturnsEmptyListFromDatabase_ItemList()
-    {
-      //Arrange
-      List<Item> newList = new List<Item> { };
-
-      //Act
-      List<Item> result = Item.GetAll();
+      List<Book> result = Book.GetAll();
 
       //Assert
       CollectionAssert.AreEqual(newList, result);
     }
 
     [TestMethod]
-    public void Equals_ReturnsTrueIfDescriptionAreTheSame_Item()
+    public void Equals_ReturnsTrueIfTitleAreTheSame_Book()
     {
-      DateTime newDateTime = new DateTime(2001);
-      Item firstItem = new Item("Mow the lawn", newDateTime);
-      Item secondItem = new Item("Mow the lawn", newDateTime);
-      Assert.AreEqual(firstItem, secondItem);
+      Book firstBook = new Book("Mow the lawn");
+      Book secondBook = new Book("Mow the lawn");
+      Assert.AreEqual(firstBook, secondBook);
     }
+
     [TestMethod]
-    public void Save_SavesToDatabase_ItemList()
+    public void Save_SavesToDatabase_BookList()
     {
-      DateTime newDateTime = new DateTime(2001);
-      Item testItem = new Item("Mow the lawn", newDateTime);
-      testItem.Save();
-      List<Item> result = Item.GetAll();
-      List<Item> testList = new List<Item>{testItem};
+      Book testBook = new Book("Mow the lawn");
+      testBook.Save();
+      List<Book> result = Book.GetAll();
+      List<Book> testList = new List<Book>{testBook};
       CollectionAssert.AreEqual(testList, result);
     }
 
     [TestMethod]
-    public void GetAll_ReturnsItems_ItemList()
+    public void GetAll_ReturnsBooks_BookList()
     {
       //Arrange
-      string description01 = "Walk the dog";
-      string description02 = "Wash the dishes";
-      DateTime newDateTime = new DateTime(2001);
-      Item newItem1 = new Item(description01, newDateTime);
-      newItem1.Save();
-      Item newItem2 = new Item(description02, newDateTime);
-      newItem2.Save();
-      List<Item> newList = new List<Item> { newItem1, newItem2 };
+      string title01 = "Walk the dog";
+      string title02 = "Wash the dishes";
+      Book newBook1 = new Book(title01);
+      newBook1.Save();
+      Book newBook2 = new Book(title02);
+      newBook2.Save();
+      List<Book> newList = new List<Book> { newBook1, newBook2 };
 
       //Act
-      List<Item> result = Item.GetAll();
-      foreach(Item item in result)
-      {
-      Console.WriteLine(item.GetDueDate().ToString("F"));
-      }
+      List<Book> result = Book.GetAll();
 
-      foreach(Item item in newList)
-      {
-      Console.WriteLine("NewList:"+item.GetDueDate().ToString("F"));
-      }
       //Assert
       CollectionAssert.AreEqual(newList, result);
     }
@@ -122,126 +78,104 @@ namespace ToDoList.Tests
     [TestMethod]
     public void Save_AssignsIdObject_Id()
     {
-      DateTime newDateTime = new DateTime(2001);
-      Item testItem = new Item("Mow the lawn", newDateTime);
-      testItem.Save();
-      Item savedItem = Item.GetAll()[0];
-
-      int result = savedItem.GetId();
-      int testId = testItem.GetId();
-
+      Book testBook = new Book("Mow the lawn");
+      testBook.Save();
+      Book savedBook = Book.GetAll()[0];
+      int result = savedBook.Id;
+      int testId = testBook.Id;
       Assert.AreEqual(testId, result);
-
     }
+
+    [TestMethod]
+    public void Find_ReturnsCorrectBookFromDatabase_Book()
+    {
+      //Arrange
+      Book testBook = new Book("Mow the lawn");
+      testBook.Save();
+
+      //Act
+      Book foundBook = Book.Find(testBook.Id);
+
+      //Assert
+      Assert.AreEqual(testBook, foundBook);
+    }
+
+    [TestMethod]
+    public void GetAuthors_ReturnAllBooksAuthors_AuthorList()
+    {
+      //Arrange
+      Book testBook = new Book("Mow the lawn");
+      testBook.Save();
+      Author testAuthor1 = new Author("Home Stuff");
+      testAuthor1.Save();
+      Author testAuthor2 = new Author("Work Stuff");
+      testAuthor2.Save();
+
+      //Act
+      testBook.AddAuthor(testAuthor1);
+      List<Author> result = testBook.GetAuthors();
+      List<Author> testList = new List<Author> {testAuthor1};
+
+      //Assert
+      CollectionAssert.AreEqual(testList, result);
+    }
+
+    [TestMethod]
+    public void AddAuthor_AddsAuthorToBook_AuthorList()
+    {
+      //Arrange
+      Book testBook = new Book("Mow the lawn");
+      testBook.Save();
+      Author testAuthor = new Author("Home stuff");
+      testAuthor.Save();
+
+      //Act
+      testBook.AddAuthor(testAuthor);
+
+      List<Author> result = testBook.GetAuthors();
+      List<Author> testList = new List<Author>{testAuthor};
+
+      //Assert
+      CollectionAssert.AreEqual(testList, result);
+    }
+
+    [TestMethod]
+    public void Delete_DeletesBookAssociationsFromDatabase_BookList()
+    {
+      //Arrange
+      Author testAuthor = new Author("Home stuff");
+      testAuthor.Save();
+      string testTitle = "Mow the lawn";
+      Book testBook = new Book(testTitle);
+      testBook.Save();
+
+      //Act
+      testBook.AddAuthor(testAuthor);
+      testBook.Delete();
+      List<Book> resultAuthorBooks = testAuthor.GetBooks();
+      List<Book> testAuthorBooks = new List<Book> {};
+
+      //Assert
+      CollectionAssert.AreEqual(testAuthorBooks, resultAuthorBooks);
+    }
+
     // [TestMethod]
-    // public void GetId_ItemsInstantiateWithAnIdAndGetterReturns_Int()
+    // public void CompletedBook_ChangesIsCompletePropertyToTrue_Bool()
     // {
-    //   //Arrange
-    //   string description = "Walk the dog.";
-    //   Item newItem = new Item(description);
     //
-    //   //Act
-    //   int result = newItem.GetId();
+    //   Author testAuthor = new Author("Home stuff");
+    //   testAuthor.Save();
+    //   string testTitle = "Mow the lawn";
+    //   Book testBook = new Book(testTitle);
+    //   testBook.Save();
+    //   testAuthor.AddBook(testBook);
     //
-    //   //Assert
-    //   Assert.AreEqual(1, result);
+    //   testBook.AddAuthor(testAuthor);
+    //
+    //   testBook.CompletedBook();
+    //   List<Book> resultAuthorBooks = testAuthor.GetBooks();
+    //
+    //   Assert.AreEqual(true, testBook.GetIsComplete());
     // }
-    //
-    [TestMethod]
-    public void Find_ReturnsCorrectItemFromDatabase_Item()
-    {
-      //Arrange
-      DateTime newDateTime = new DateTime(2001);
-      Item testItem = new Item("Mow the lawn", newDateTime);
-      testItem.Save();
-
-      //Act
-      Item foundItem = Item.Find(testItem.GetId());
-
-      //Assert
-      Assert.AreEqual(testItem, foundItem);
-    }
-
-    [TestMethod]
-    public void GetCategories_ReturnAllItemsCategories_CategoryList()
-    {
-      //Arrange
-      DateTime newDateTime = new DateTime(2001);
-      Item testItem = new Item("Mow the lawn", newDateTime);
-      testItem.Save();
-      Category testCategory1 = new Category("Home Stuff");
-      testCategory1.Save();
-      Category testCategory2 = new Category("Work Stuff");
-      testCategory2.Save();
-
-      //Act
-      testItem.AddCategory(testCategory1);
-      List<Category> result = testItem.GetCategories();
-      List<Category> testList = new List<Category> {testCategory1};
-
-      //Assert
-      CollectionAssert.AreEqual(testList, result);
-    }
-
-    [TestMethod]
-    public void AddCategory_AddsCategoryToItem_CategoryList()
-    {
-      //Arrange
-      DateTime newDateTime = new DateTime(2001);
-      Item testItem = new Item("Mow the lawn", newDateTime);
-      testItem.Save();
-      Category testCategory = new Category("Home stuff");
-      testCategory.Save();
-
-      //Act
-      testItem.AddCategory(testCategory);
-
-      List<Category> result = testItem.GetCategories();
-      List<Category> testList = new List<Category>{testCategory};
-
-      //Assert
-      CollectionAssert.AreEqual(testList, result);
-    }
-
-    [TestMethod]
-    public void Delete_DeletesItemAssociationsFromDatabase_ItemList()
-    {
-      //Arrange
-      DateTime newDateTime = new DateTime(2001);
-      Category testCategory = new Category("Home stuff");
-      testCategory.Save();
-      string testDescription = "Mow the lawn";
-      Item testItem = new Item(testDescription, newDateTime);
-      testItem.Save();
-
-      //Act
-      testItem.AddCategory(testCategory);
-      testItem.Delete();
-      List<Item> resultCategoryItems = testCategory.GetItems();
-      List<Item> testCategoryItems = new List<Item> {};
-
-      //Assert
-      CollectionAssert.AreEqual(testCategoryItems, resultCategoryItems);
-    }
-
-    [TestMethod]
-    public void CompletedItem_ChangesIsCompletePropertyToTrue_Bool()
-    {
-      DateTime newDateTime = new DateTime(2001);
-      Category testCategory = new Category("Home stuff");
-      testCategory.Save();
-      string testDescription = "Mow the lawn";
-      Item testItem = new Item(testDescription, newDateTime);
-      testItem.Save();
-      testCategory.AddItem(testItem);
-
-      testItem.AddCategory(testCategory);
-
-      testItem.CompletedItem();
-      List<Item> resultCategoryItems = testCategory.GetItems();
-      // Item result = resultCategoryItems.GetItem(Find(testItem.GetId()));
-
-      Assert.AreEqual(true, testItem.GetIsComplete());
-    }
   }
 }

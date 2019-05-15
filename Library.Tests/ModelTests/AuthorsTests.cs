@@ -1,155 +1,119 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ToDoList.Models;
+using Library.Models;
 using System.Collections.Generic;
 using System;
 
-namespace ToDoList.Tests
+namespace Library.Tests
 {
   [TestClass]
-  public class CategoryTest : IDisposable
+  public class AuthorTest : IDisposable
   {
 
     public void Dispose()
     {
-      Category.ClearAll();
-      Item.ClearAll();
+      Author.ClearAll();
+      Book.ClearAll();
     }
 
     [TestMethod]
-    public void CategoryConstructor_CreatesInstanceOfCategory_Category()
+    public void AuthorConstructor_CreatesInstanceOfAuthor_Author()
     {
-      Category newCategory = new Category("test category");
-      Assert.AreEqual(typeof(Category), newCategory.GetType());
+      Author newAuthor = new Author("test author");
+      Assert.AreEqual(typeof(Author), newAuthor.GetType());
     }
 
     [TestMethod]
-    public void GetName_ReturnsName_String()
-    {
-      //Arrange
-      string name = "Test Category";
-      Category newCategory = new Category(name);
-
-      //Act
-      string result = newCategory.GetName();
-
-      //Assert
-      Assert.AreEqual(name, result);
-    }
-
-    [TestMethod]
-    public void GetId_ReturnsCategoryId_Int()
-    {
-      //Arrange
-      string name = "Test Category";
-      Category newCategory = new Category(name);
-
-      //Act
-      int result = newCategory.GetId();
-
-      //Assert
-      Assert.AreEqual(0, result);
-    }
-
-    [TestMethod]
-    public void GetAll_ReturnsAllCategoryObjects_CategoryList()
+    public void GetAll_ReturnsAllAuthorObjects_AuthorList()
     {
       //Arrange
       string name01 = "Work";
       string name02 = "School";
-      Category newCategory1 = new Category(name01);
-      newCategory1.Save();
-      Category newCategory2 = new Category(name02);
-      newCategory2.Save();
-      List<Category> newList = new List<Category> { newCategory1, newCategory2 };
+      Author newAuthor1 = new Author(name01);
+      newAuthor1.Save();
+      Author newAuthor2 = new Author(name02);
+      newAuthor2.Save();
+      List<Author> newList = new List<Author> { newAuthor1, newAuthor2 };
 
       //Act
-      List<Category> result = Category.GetAll();
-
-      Console.WriteLine(result.Count);
-      Console.WriteLine(newList.Count);
+      List<Author> result = Author.GetAll();
       //Assert
-      // Assert.AreEqual(newList[1], result[1]);
       CollectionAssert.AreEqual(newList, result);
     }
 
     [TestMethod]
-    public void Find_ReturnsCorrectCategory_Category()
+    public void Find_ReturnsCorrectAuthor_Author()
     {
       //Arrange
       string name01 = "Work";
-      Category newCategory1 = new Category(name01);
-      newCategory1.Save();
+      Author newAuthor1 = new Author(name01);
+      newAuthor1.Save();
       //Act
-      Category result = Category.Find(newCategory1.GetId());
+      Author result = Author.Find(newAuthor1.Id);
 
       //Assert
-      Assert.AreEqual(newCategory1, result);
+      Assert.AreEqual(newAuthor1, result);
     }
 
     [TestMethod]
-    public void GetItems_ReturnsAllCategoryItems_ItemList()
+    public void GetBooks_ReturnsAllAuthorBooks_BookList()
     {
       //Arrange
-      DateTime newDateTime = new DateTime(2001);
-      Category testCategory = new Category("Household chores");
-      testCategory.Save();
-      Item testItem1 = new Item("Mow the lawn", newDateTime);
-      testItem1.Save();
-      Item testItem2 = new Item("Buy plane ticket", newDateTime);
-      testItem2.Save();
+      Author testAuthor = new Author("Household chores");
+      testAuthor.Save();
+      Book testBook1 = new Book("Mow the lawn");
+      testBook1.Save();
+      Book testBook2 = new Book("Buy plane ticket");
+      testBook2.Save();
 
       //Act
-      testCategory.AddItem(testItem1);
-      testCategory.AddItem(testItem2);
-      List<Item> savedItems = testCategory.GetItems();
-      List<Item> testList = new List<Item> {testItem1, testItem2};
-      Console.WriteLine(testList.Count);
+      testAuthor.AddBook(testBook1);
+      testAuthor.AddBook(testBook2);
+      List<Book> savedBooks = testAuthor.GetBooks();
+      List<Book> testList = new List<Book> {testBook1, testBook2};
 
       //Assert
-      CollectionAssert.AreEqual(testList, savedItems);
+      CollectionAssert.AreEqual(testList, savedBooks);
     }
 
     [TestMethod]
-    public void Test_AddItem_AddsItemToCategory()
+    public void Test_AddBook_AddsBookToAuthor()
     {
       //Arrange
-      DateTime newDateTime = new DateTime(2001);
-      Category testCategory = new Category("Household chores");
-      testCategory.Save();
-      Item testItem = new Item("Mow the lawn", newDateTime);
-      testItem.Save();
-      Item testItem2 = new Item("Water the garden", newDateTime);
-      testItem2.Save();
+      Author testAuthor = new Author("Household chores");
+      testAuthor.Save();
+      Book testBook = new Book("Mow the lawn");
+      testBook.Save();
+      Book testBook2 = new Book("Water the garden");
+      testBook2.Save();
 
       //Act
-      testCategory.AddItem(testItem);
-      testCategory.AddItem(testItem2);
-      List<Item> result = testCategory.GetItems();
-      List<Item> testList = new List<Item>{testItem, testItem2};
+      testAuthor.AddBook(testBook);
+      testAuthor.AddBook(testBook2);
+      List<Book> result = testAuthor.GetBooks();
+      List<Book> testList = new List<Book>{testBook, testBook2};
 
       //Assert
       CollectionAssert.AreEqual(testList, result);
     }
 
     [TestMethod]
-    public void Delete_DeletesCategoryAssociationsFromDatabase_CategoryList()
+    public void Delete_DeletesAuthorAssociationsFromDatabase_AuthorList()
     {
       //Arrange
-      DateTime newDateTime = new DateTime(2001);
-      Item testItem = new Item("Mow the lawn", newDateTime);
-      testItem.Save();
+      Book testBook = new Book("Mow the lawn");
+      testBook.Save();
       string testName = "Home stuff";
-      Category testCategory = new Category(testName);
-      testCategory.Save();
+      Author testAuthor = new Author(testName);
+      testAuthor.Save();
 
       //Act
-      testCategory.AddItem(testItem);
-      testCategory.Delete();
-      List<Category> resultItemCategories = testItem.GetCategories();
-      List<Category> testItemCategories = new List<Category> {};
+      testAuthor.AddBook(testBook);
+      testAuthor.Delete();
+      List<Author> resultBookAuthors = testBook.GetAuthors();
+      List<Author> testBookAuthors = new List<Author> {};
 
       //Assert
-      CollectionAssert.AreEqual(testItemCategories, resultItemCategories);
+      CollectionAssert.AreEqual(testBookAuthors, resultBookAuthors);
     }
 
   }
