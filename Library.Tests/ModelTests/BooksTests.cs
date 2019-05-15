@@ -11,6 +11,8 @@ namespace Library.Tests
     public void Dispose()
     {
       Book.ClearAll();
+      Author.ClearAll();
+      Book.BookAuthorClearAll();
     }
 
     public BookTest()

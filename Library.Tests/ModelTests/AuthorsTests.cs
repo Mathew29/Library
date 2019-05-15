@@ -13,6 +13,11 @@ namespace Library.Tests
     {
       Author.ClearAll();
       Book.ClearAll();
+      Author.AuthorBookClearAll();
+    }
+    public AuthorTest()
+    {
+      DBConfiguration.ConnectionString = "server=localhost;user id=root;password=root;port=8889;database=library_test;";
     }
 
     [TestMethod]

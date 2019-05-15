@@ -177,6 +177,19 @@ namespace Library.Models
       }
     }
 
+    public static void BookAuthorClearAll()
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+      MySqlCommand cmd = new MySqlCommand(@"DELETE FROM authors_books;", conn);
+      cmd.ExecuteNonQuery();
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+    }
+
     public override bool Equals(System.Object otherBook)
     {
       if (!(otherBook is Book))
