@@ -17,23 +17,16 @@ namespace Library.Models
       Id = id;
     }
 
-    public List<Book> AddBookCopy()
+    // Adds copies to the copy table
+    public void AddCopy(Copy newCopy)
     {
       MySqlConnection conn = DB.Connection();
       conn.Open();
       MySqlCommand cmd = new MySqlCommand(@"SELECT books.title
       FROM copies
-      JOIN bookcopies ON (copies.id = bookcopies.copy_id)
-      JOIN books ON (bookcopies.book_id = books.id));", conn);
+      JOIN books ON (copies.book_id = books.id));", conn);
       MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
-      List<Book>
-      while (rdr.Read())
-      {
-        int copyBookId = rdr.GetInt32(0);
-        int bookId = rdr.GetInt32(1);
-        int copyId = rdr.GetInt32(2);
-        string bookTitle = rdr.GetString(3);
-      }
+
       conn.Close();
       if (conn != null)
       {
@@ -41,42 +34,45 @@ namespace Library.Models
       }
     }
 
-    public List<Book> GetBooks()
-    {
-      MySqlConnection conn = DB.Connection();
-      conn.Open();
-      MySqlCommand cmd = new MySqlCommand(@"SELECT book_id FROM copies WHERE copy_id = @copyId", conn);
-      cmd.Parameters.AddWithValue("@copyId", Id);
-      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
-      List<int> bookIds = new List<int> {};
-      while(rdr.Read())
-      {
-        int bookId = rdr.GetInt32(2);
-        bookIds.Add(bookId);
-      }
-      rdr.Dispose();
-      List<Book> books = new List<Book> {};
-      foreach(int bookId in bookIds)
-      {
-        MySqlCommand bookQuery = new MySqlCommand(@"SELECT * FROM books WHERE id = @BookId;", conn);
-        bookQuery.Parameters.AddWithValue("@BookId", bookId);
-        MySqlDataReader bookQueryRdr = bookQuery.ExecuteReader() as MySqlDataReader;
-        while(bookQueryRdr.Read())
-        {
-          int thisBookId = bookQueryRdr.GetInt32(0);
-          string bookTitle = bookQueryRdr.GetString(1);
-          Book foundBook = new Book(bookTitle, thisBookId);
-          books.Add(foundBook);
-        }
-        bookQueryRdr.Dispose();
-      }
-      conn.Close();
-      if(conn != null)
-      {
-        conn.Dispose();
-      }
-      return books;
-    }
+    // This creates a list all books for the titles - access to books table from the copies controller
+    // public List<Book> GetBooks()
+    // {
+    //   MySqlConnection conn = DB.Connection();
+    //   conn.Open();
+    //   MySqlCommand cmd = new MySqlCommand(@"SELECT book_id FROM copies WHERE copy_id = @copyId", conn);
+    //   cmd.Parameters.AddWithValue("@copyId", Id);
+    //   MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
+    //   List<int> bookIds = new List<int> {};
+    //   while(rdr.Read())
+    //   {
+    //     int bookId = rdr.GetInt32(2);
+    //     bookIds.Add(bookId);
+    //   }
+    //   rdr.Dispose();
+    //   List<Book> books = new List<Book> {};
+    //   foreach(int bookId in bookIds)
+    //   {
+    //     MySqlCommand bookQuery = new MySqlCommand(@"SELECT * FROM books WHERE id = @BookId;", conn);
+    //     bookQuery.Parameters.AddWithValue("@BookId", bookId);
+    //     MySqlDataReader bookQueryRdr = bookQuery.ExecuteReader() as MySqlDataReader;
+    //     while(bookQueryRdr.Read())
+    //     {
+    //       int thisBookId = bookQueryRdr.GetInt32(0);
+    //       string bookTitle = bookQueryRdr.GetString(1);
+    //       Book foundBook = new Book(bookTitle, thisBookId);
+    //       books.Add(foundBook);
+    //     }
+    //     bookQueryRdr.Dispose();
+    //   }
+    //   conn.Close();
+    //   if(conn != null)
+    //   {
+    //     conn.Dispose();
+    //   }
+    //   return books;
+    // }
+
+
     // Need tested but should be working
 
     public void Save()
