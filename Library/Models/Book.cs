@@ -52,6 +52,22 @@ namespace Library.Models
       }
     }
 
+    // Checks out a book to a patron from Book Show() page
+    public void CheckoutBook(Copy newCheckout)
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+      MySqlCommand cmd = new MySqlCommand(@"INSERT INTO checkouts (patron_id, copy_id) VALUES (@PatronId, @CopyId);", conn);
+      cmd.Parameters.AddWithValue("@PatronId", Id);
+      cmd.Parameters.AddWithValue("@CopyId", newCheckout.Id);
+      cmd.ExecuteNonQuery();
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+    }
+
     public static List<Book> GetAll()
     {
       List<Book> allBooks = new List<Book> {};
@@ -73,7 +89,6 @@ namespace Library.Models
       }
       return allBooks;
     }
-
 
     public static Book Find(int id)
     {
@@ -177,18 +192,6 @@ namespace Library.Models
       }
     }
 
-    public static void BookAuthorClearAll()
-    {
-      MySqlConnection conn = DB.Connection();
-      conn.Open();
-      MySqlCommand cmd = new MySqlCommand(@"DELETE FROM authors_books;", conn);
-      cmd.ExecuteNonQuery();
-      conn.Close();
-      if (conn != null)
-      {
-        conn.Dispose();
-      }
-    }
 
     public override bool Equals(System.Object otherBook)
     {

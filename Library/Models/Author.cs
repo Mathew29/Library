@@ -96,7 +96,8 @@ namespace Library.Models
     {
       MySqlConnection conn = DB.Connection();
       conn.Open();
-      MySqlCommand cmd = new MySqlCommand(@"SELECT books.* FROM authors
+      MySqlCommand cmd = new MySqlCommand(@"SELECT books.*
+      FROM authors
       JOIN authors_books ON (authors.id = authors_books.author_id)
       JOIN books ON (authors_books.book_id = books.id)
       WHERE authors.id = @AuthorId;", conn);

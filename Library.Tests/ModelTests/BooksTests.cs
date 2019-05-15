@@ -12,7 +12,7 @@ namespace Library.Tests
     {
       Book.ClearAll();
       Author.ClearAll();
-      Book.BookAuthorClearAll();
+      Author.AuthorBookClearAll();
     }
 
     public BookTest()
