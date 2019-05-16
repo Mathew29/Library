@@ -1,8 +1,23 @@
-<h1>To Do List Item Details: </h1>
+@using Library.Models;
+@using System.Collections.Generic;
 
-<h2>@Model["item"].GetDescription()</h2>
-<h3>Category: @Model["category"].GetName()</h3>
-<h3>Due Date: @Model["item"].GetDueDate()</h3>
+<h2>@Model["book"].Title</h2>
+@* <h3>Author: @Model["bookAuthors"].Name</h3> *@
 
-<a href='/categories/@Model["category"].Id/items/@Model["item"].Id/edit'>Edit this Item</a>
-<a href='/categories'>View all categories</a>
+  <form action='/books/@Model["book"].Id/authors/new' method='post'>
+
+    <label for='authorId'>Select author</label>
+    <select id='authorId' name='authorId' type='text'>
+
+      @foreach (var author in @Model["allAuthors"])
+      {
+        <option value='@author.Id'>@author.Name</option>
+      }
+
+    </select>
+
+    <button type='submit'>Add book</button>
+  </form>
+
+<a href='/books/@Model["book"].Id/edit'>Edit this book</a>
+<a href='/books'>View all books</a>

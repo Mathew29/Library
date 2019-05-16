@@ -30,31 +30,5 @@ namespace Library.Controllers
       return View("Index", allAuthors);
     }
 
-    [HttpGet("/authors/{id}")]
-    public ActionResult Show(int id)
-    {
-      Dictionary<string, object> model = new Dictionary<string, object>();
-      Author selectedAuthor = Author.Find(id);
-      List<Book> authorBooks = selectedAuthor.GetBooks();
-      model.Add("author", selectedAuthor);
-      model.Add("books", authorBooks);
-      return View(model);
-    }
-
-    // // This one creates new Books within a given Author, not new Authors:
-    [HttpPost("/authors/{authorId}/books")]
-    public ActionResult Create(int authorId, string bookTitle, DateTime bookDueDate)
-    {
-      Dictionary<string, object> model = new Dictionary<string, object>();
-      Author foundAuthor = Author.Find(authorId);
-      Book newBook = new Book(bookTitle);
-      newBook.Save();
-      // foundAuthor.AddBook(newBook);
-      List<Book> authorBooks = foundAuthor.GetBooks();
-      model.Add("books", authorBooks);
-      model.Add("author", newBook);
-      return View("Show", model);
-    }
-
   }
 }

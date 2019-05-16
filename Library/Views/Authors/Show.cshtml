@@ -1,12 +1,12 @@
-<h3>Here are all the items in this category:</h3>
+<h3>Here are all the books in this author:</h3>
 
 <ol>
-@foreach (var item in @Model["items"])
+@foreach (var book in @Model["books"])
 {
-  <li><a href='/categories/@Model["category"].Id/items/@item.Id'>@item.GetDescription()</a></li>
+  <li><a href='/authors/@Model["author"].Id/books/@book.Id'>@book.Name</a></li>
 }
 </ol>
 
-<p><a href='/categories/@Model["category"].Id/items/new'>Add a new item</a></p>
-<p><a href='/categories'>Return to category list</a></p>
+@* <p><a href='/authors/@Model["author"].Id/books/new'>Add a new book</a></p> *@
+<p><a href='/authors'>Return to author list</a></p>
 <p><a href='/'>Return to Main Page</a></p>

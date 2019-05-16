@@ -1,10 +1,9 @@
-<h1>Add a new item to @Model.GetName()</h1>
+<h1>Add a new book.</h1>
 
-<form action='/categories/@Model.Id/items' method='post'>
-  <input id='categoryId' name='categoryId' type='hidden' value='@Model.Id'>
-  <label for='itemDescription'>Item description</label>
-  <input id='itemDescription' name='itemDescription' type='text'>
-  <label for="itemDueDate">Due Date</label>
-  <input id="itemDueDate" name="itemDueDate" type="date">
-  <button type='submit'>Add item</button>
+<form action='/books/new' method='post'>
+
+  <label for='bookTitle'>Book Title</label>
+  <input id='bookTitle' name='bookTitle' type='text'>
+
+  <button type='submit'>Add book</button>
 </form>
