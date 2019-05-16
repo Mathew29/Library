@@ -1,7 +1,7 @@
 <h1>Add a new item to @Model.GetName()</h1>
 
-<form action='/categories/@Model.GetId()/items' method='post'>
-  <input id='categoryId' name='categoryId' type='hidden' value='@Model.GetId()'>
+<form action='/categories/@Model.Id/items' method='post'>
+  <input id='categoryId' name='categoryId' type='hidden' value='@Model.Id'>
   <label for='itemDescription'>Item description</label>
   <input id='itemDescription' name='itemDescription' type='text'>
   <label for="itemDueDate">Due Date</label>

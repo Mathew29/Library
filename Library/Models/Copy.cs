@@ -7,10 +7,10 @@ namespace Library.Models
   public class Copy
   {
     public int BookId {get; set;}
-    public bool Available {get; set;}
+    public int Available {get; set;}
     public int Id {get; set;}
 
-    public Copy (int bookId, bool available, int id = 0)
+    public Copy (int bookId, int available, int id = 0)
     {
       BookId = bookId;
       Available = available;

@@ -90,7 +90,7 @@ namespace Library.Models
       {
         int copyId = rdr.GetInt32(0);
         int bookId = rdr.GetInt32(1);
-        int copyAvailable = rdr GetInt32(2);
+        int copyAvailable = rdr.GetInt32(2);
         Copy newCopy = new Copy(bookId, copyAvailable, copyId);
         copies.Add(newCopy);
       }
